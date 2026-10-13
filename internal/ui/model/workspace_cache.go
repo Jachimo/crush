@@ -118,6 +118,7 @@ type summaryFinishedMsg struct {
 type completionCheckedMsg struct {
 	busyGen      uint64
 	busy         bool
+	err          error
 	notification *notify.Notification
 }
 
@@ -176,7 +177,8 @@ func (m *UI) submissionFinished(sessionID string, gen uint64, err error, summary
 func (m *UI) dispatchCompletionCheck(n *notify.Notification) tea.Cmd {
 	busyGen, ws := m.busyFetchGen, m.com.Workspace
 	return func() tea.Msg {
-		return completionCheckedMsg{busyGen: busyGen, busy: ws.AgentIsSessionBusy(n.SessionID), notification: n}
+		busy, err := ws.AgentIsSessionBusy(n.SessionID)
+		return completionCheckedMsg{busyGen: busyGen, busy: busy, err: err, notification: n}
 	}
 }
 
